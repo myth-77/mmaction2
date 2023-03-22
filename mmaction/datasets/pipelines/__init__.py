@@ -16,7 +16,7 @@ from .loading import (ArrayDecode, AudioDecode, AudioDecodeInit,
                       LoadProposals, OpenCVDecode, OpenCVInit, PIMSDecode,
                       PIMSInit, PyAVDecode, PyAVDecodeMotionVector, PyAVInit,
                       RawFrameDecode, SampleAVAFrames, SampleFrames,
-                      SampleProposalFrames, UntrimmedSampleFrames)
+                      SampleProposalFrames, UntrimmedSampleFrames, SampleCompressedFrames, DecoderCompressedVid)
 from .pose_loading import (GeneratePoseTarget, LoadKineticsPose,
                            PaddingWithLoop, PoseDecode, PoseNormalize,
                            UniformSampleFrames)
@@ -37,5 +37,5 @@ __all__ = [
     'PyAVDecodeMotionVector', 'Rename', 'Imgaug', 'UniformSampleFrames',
     'PoseDecode', 'LoadKineticsPose', 'GeneratePoseTarget', 'PIMSInit',
     'PIMSDecode', 'TorchvisionTrans', 'PytorchVideoTrans', 'PoseNormalize',
-    'FormatGCNInput', 'PaddingWithLoop', 'ArrayDecode', 'JointToBone'
+    'FormatGCNInput', 'PaddingWithLoop', 'ArrayDecode', 'JointToBone', 'SampleCompressedFrames', 'DecoderCompressedVid'
 ]

@@ -8,7 +8,7 @@ log_config = dict(
 # runtime settings
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = '/home/myth/workplace/mmaction2/timesformer_divST_8x32x1_15e_kinetics400_rgb-3f8e5d03.pth'
+load_from = ''
 resume_from = None
 workflow = [('train', 1)]
 

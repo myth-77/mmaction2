@@ -22,7 +22,7 @@ model = dict(
     test_cfg=dict(average_clips='prob'))
 
 # dataset settings
-split = 1
+split = 3
 dataset_type = 'RawframeDataset'
 data_root = 'data/hmdb51/rawframes'
 data_root_val = 'data/hmdb51/rawframes'
@@ -119,4 +119,4 @@ total_epochs = 30
 
 # runtime settings
 checkpoint_config = dict(interval=5)
-work_dir = './work_dirs/timesformer_divST_8x32x1_15e_hmdb51s1_rgb'
+work_dir = './work_dirs/timesformer_divST_8x32x1_15e_hmdb51s3_rgb'

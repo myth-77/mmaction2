@@ -26,6 +26,11 @@
 
 # train with smaller lr for 8GPUs on 2GPUs
 CUDA_VISIBLE_DEVICES=0,1 ./tools/dist_train.sh \
-configs/recognition/timesformer/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_finetune.py 2 \
+configs/recognition/timesformer/timesformer_divST_16x4x1_15e_hmdb51s2_rgb_finetune2.py 2 \
 --validate --seed 0 --deterministic \
---work-dir ./exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e5_finetunek400
+--work-dir ./exp/timesformer_divST_16x4x1_15e_hmdb51s2_rgb_SGB1e5_finetunek400
+
+CUDA_VISIBLE_DEVICES=0,1 ./tools/dist_train.sh \
+configs/recognition/timesformer/timesformer_divST_16x4x1_15e_hmdb51s3_rgb_finetune2.py 2 \
+--validate --seed 0 --deterministic \
+--work-dir ./exp/timesformer_divST_16x4x1_15e_hmdb51s3_rgb_SGB1e5_finetunek400

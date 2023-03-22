@@ -14,7 +14,7 @@ model = dict(
         in_channels=3,
         dropout_ratio=0.,
         transformer_layers=None,
-        attention_type='divided_space_time',
+    attention_type='divided_space_time',
         norm_cfg=dict(type='LN', eps=1e-6)),
     cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
     # model training and testing settings
@@ -82,17 +82,17 @@ data = dict(
         type=dataset_type,
         ann_file=ann_file_train,
         data_prefix=data_root,
-        pipeline=train_pipeline),
+        pipeline=train_pipeline,start_index=1,modality='Residual'),
     val=dict(
         type=dataset_type,
         ann_file=ann_file_val,
         data_prefix=data_root_val,
-        pipeline=val_pipeline),
+        pipeline=val_pipeline,start_index=1,modality='Residual'),
     test=dict(
         type=dataset_type,
         ann_file=ann_file_test,
         data_prefix=data_root_val,
-        pipeline=test_pipeline))
+        pipeline=test_pipeline,start_index=1,modality='Residual'))
 
 evaluation = dict(
     interval=5, metrics=['top_k_accuracy', 'mean_class_accuracy'])
