@@ -1402,7 +1402,7 @@ class Normalize:
     def __call__(self, results):
         modality = results['modality']
 
-        if modality == 'RGB' or  modality == 'Residual' :
+        if modality in ['RGB', 'Residual', 'RGB_RES']:
             n = len(results['imgs'])
             h, w, c = results['imgs'][0].shape
             imgs = np.empty((n, h, w, c), dtype=np.float32)

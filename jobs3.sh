@@ -30,4 +30,4 @@ CUDA_VISIBLE_DEVICES=1 ./tools/train.sh \
 --validate --seed 0 --deterministic \
 --work-dir ./exp/i3d_r50_16x4x1_hmdb51_rgb_distill_timesformer
 
-./job2.sh
+./jobs2.sh

@@ -19,7 +19,7 @@ model_teacher = dict(
 
 # model settings
 model = dict(
-    type='Recognizer3Dkd',
+    type='Recognizer3Dkd_RBG2Res',
     backbone=dict(
         type='TimeSformer',
         pretrained=  # noqa: E251
@@ -52,7 +52,7 @@ ann_file_val = f'data/hmdb51/hmdb51_val_split_{split}_rawframes.txt'
 ann_file_test = f'data/hmdb51/hmdb51_val_split_{split}_rawframes.txt'
 
 img_norm_cfg = dict(
-    mean=[127.5, 127.5, 127.5], std=[127.5, 127.5, 127.5], to_bgr=False)
+    mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5], std=[127.5, 127.5,  127.5, 127.5, 127.5, 127.5], to_bgr=False)
 
 train_pipeline = [
     dict(type='SampleFrames', clip_len=16, frame_interval=4, num_clips=1),
@@ -103,17 +103,17 @@ data = dict(
         type=dataset_type,
         ann_file=ann_file_train,
         data_prefix=data_root,
-        pipeline=train_pipeline,start_index=1,modality='Residual'),
+        pipeline=train_pipeline,start_index=1,modality='RGB_RES'),
     val=dict(
         type=dataset_type,
         ann_file=ann_file_val,
         data_prefix=data_root_val,
-        pipeline=val_pipeline,start_index=1,modality='Residual'),
+        pipeline=val_pipeline,start_index=1,modality='RGB_RES'),
     test=dict(
         type=dataset_type,
         ann_file=ann_file_test,
         data_prefix=data_root_val,
-        pipeline=test_pipeline,start_index=1,modality='Residual'))
+        pipeline=test_pipeline,start_index=1,modality='RGB_RES'))
 
 evaluation = dict(
     interval=5, metrics=['top_k_accuracy', 'mean_class_accuracy'])

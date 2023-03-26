@@ -1472,9 +1472,7 @@ class RawFrameDecode:
         for i, frame_idx in enumerate(results['frame_inds']):
             # Avoid loading duplicated frames
             if frame_idx in cache:
-                if modality == 'RGB':
-                    imgs.append(cp.deepcopy(imgs[cache[frame_idx]]))
-                elif modality == 'Residual':
+                if modality in ['RGB', 'Residual', 'RGB_RES']:
                     imgs.append(cp.deepcopy(imgs[cache[frame_idx]]))
                 else:
                     imgs.append(cp.deepcopy(imgs[2 * cache[frame_idx]]))
@@ -1512,7 +1510,19 @@ class RawFrameDecode:
                 pre_frame = mmcv.imfrombytes(img_bytes_pre, channel_order='rgb')
                 residual = cv2.absdiff(cur_frame, pre_frame)
                 imgs.append(residual)
-            
+            elif modality == 'RGB_RES':
+                filepath = osp.join(directory, filename_tmpl.format(frame_idx))
+                frame_idx_pre = (frame_idx - 1) if frame_idx > 1 else 1
+                filepath_pre = osp.join(directory, filename_tmpl.format(frame_idx_pre))
+                img_bytes = self.file_client.get(filepath)
+                # Get frame with channel order RGB directly.
+                cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
+                img_bytes_pre = self.file_client.get(filepath_pre)
+                # Get frame with channel order RGB directly.
+                pre_frame = mmcv.imfrombytes(img_bytes_pre, channel_order='rgb')
+                residual = cv2.absdiff(cur_frame, pre_frame)
+                img_res = np.concatenate([pre_frame, residual], axis= -1)
+                imgs.append(img_res)
             else:
                 raise NotImplementedError
 

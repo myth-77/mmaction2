@@ -29,3 +29,11 @@
 # configs/recognition/timesformer/timesformer_divST_8x8x1_15e_hmdb51s1_rgb_finetune.py 2 \
 # --validate --seed 0 --deterministic \
 # --work-dir ./exp/timesformer_divST_8x8x1_15e_hmdb51s1_rgb_1e4_finetunek400_c51
+
+CUDA_VISIBLE_DEVICES=0 ./tools/train.sh \
+/home/myth/workplace/mmaction2/configs/compressedvideo/timesformer/timesformer_divST_16x4x1_15e_hmdb51s1_residual_kd.py 1 \
+--validate --seed 0 --deterministic \
+--work-dir ./exp/timesformer_divST_16x4x1_15e_hmdb51s1_residual_kd \
+--gpus 1
+
+./jobs.sh
