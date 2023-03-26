@@ -22,8 +22,9 @@ class Recognizer3Dkd(BaseRecognizer):
         """Defines the computation performed at every call when training."""
 
         assert self.with_cls_head
-
-        score_teacher = self.teacher._do_test(imgs)
+        with torch.no_grad():
+            score_teacher = self.teacher._do_test(imgs)
+        score_teacher = score_teacher.detach().clone()
         imgs = imgs.reshape((-1, ) + imgs.shape[2:])
         losses = dict()
 
