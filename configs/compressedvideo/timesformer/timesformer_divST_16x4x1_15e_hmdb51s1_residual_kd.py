@@ -1,12 +1,8 @@
 _base_ = ['../../_base_/default_runtime.py']
 
-# model settings
-model = dict(
-    type='Recognizer3D',
+model_teacher = dict(
     backbone=dict(
         type='TimeSformer',
-        pretrained=  # noqa: E251
-        'https://download.openmmlab.com/mmaction/recognition/timesformer/vit_base_patch16_224.pth',  # noqa: E501
         num_frames=16,
         img_size=224,
         patch_size=16,
@@ -20,6 +16,31 @@ model = dict(
     # model training and testing settings
     train_cfg=None,
     test_cfg=dict(average_clips='prob'))
+
+# model settings
+model = dict(
+    type='Recognizer3Dkd',
+    backbone=dict(
+        type='TimeSformer',
+        pretrained=  # noqa: E251
+        'https://download.openmmlab.com/mmaction/recognition/timesformer/vit_base_patch16_224.pth',  # noqa: E501
+        num_frames=16,
+        img_size=224,
+        patch_size=16,
+        embed_dims=768,
+        in_channels=3,
+        dropout_ratio=0.,
+        transformer_layers=None,
+        attention_type='divided_space_time',
+        norm_cfg=dict(type='LN', eps=1e-6)),
+    teacher = model_teacher,
+    teacher_path = '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
+    cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
+    # model training and testing settings
+    train_cfg=None,
+    test_cfg=dict(average_clips='prob'),
+    loss_kd=dict(type='CrossEntropyLoss', loss_weight=1.0)
+    )
 
 # dataset settings
 split = 1
@@ -119,4 +140,4 @@ total_epochs = 30
 
 # runtime settings
 checkpoint_config = dict(interval=5)
-work_dir = './work_dirs/timesformer_divST_8x32x1_15e_hmdb51s1_rgb'
+work_dir = './work_dirs/timesformer_divST_16x4x1_30e_hmdb51s1_kdrgb2r'

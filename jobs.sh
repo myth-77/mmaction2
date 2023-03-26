@@ -25,10 +25,10 @@
 # 1 --eval top_k_accuracy
 
 # train with smaller lr for 8GPUs on 2GPUs
-CUDA_VISIBLE_DEVICES=1 ./tools/dist_train.sh \
-/home/myth/workplace/mmaction2/configs/compressedvideo/i3d/i3d_r50_16x4x1_100e_hmdb51_residual.py 1 \
+CUDA_VISIBLE_DEVICES=0 ./tools/dist_train.sh \
+/home/myth/workplace/mmaction2/configs/compressedvideo/timesformer/timesformer_divST_16x4x1_15e_hmdb51s1_residual_finetune.py 1 \
 --validate --seed 0 --deterministic \
---work-dir ./exp/i3d_r50_16x4x1_100e_hmdb51_residual
+--work-dir ./exp/timesformer_divST_16x4x1_15e_hmdb51s1_residual_finetune
 
 # CUDA_VISIBLE_DEVICES=0,1 ./tools/dist_train.sh \
 # configs/recognition/timesformer/timesformer_divST_16x4x1_15e_hmdb51s2_rgb_finetune.py 2 \

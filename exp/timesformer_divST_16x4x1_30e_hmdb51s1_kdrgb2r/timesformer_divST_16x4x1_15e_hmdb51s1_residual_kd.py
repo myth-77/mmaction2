@@ -7,8 +7,23 @@ resume_from = None
 workflow = [('train', 1)]
 opencv_num_threads = 0
 mp_start_method = 'fork'
+model_teacher = dict(
+    backbone=dict(
+        type='TimeSformer',
+        num_frames=16,
+        img_size=224,
+        patch_size=16,
+        embed_dims=768,
+        in_channels=3,
+        dropout_ratio=0.0,
+        transformer_layers=None,
+        attention_type='divided_space_time',
+        norm_cfg=dict(type='LN', eps=1e-06)),
+    cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
+    train_cfg=None,
+    test_cfg=dict(average_clips='prob'))
 model = dict(
-    type='Recognizer3D',
+    type='Recognizer3Dkd',
     backbone=dict(
         type='TimeSformer',
         pretrained=
@@ -22,9 +37,27 @@ model = dict(
         transformer_layers=None,
         attention_type='divided_space_time',
         norm_cfg=dict(type='LN', eps=1e-06)),
+    teacher=dict(
+        backbone=dict(
+            type='TimeSformer',
+            num_frames=16,
+            img_size=224,
+            patch_size=16,
+            embed_dims=768,
+            in_channels=3,
+            dropout_ratio=0.0,
+            transformer_layers=None,
+            attention_type='divided_space_time',
+            norm_cfg=dict(type='LN', eps=1e-06)),
+        cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
+        train_cfg=None,
+        test_cfg=dict(average_clips='prob')),
+    teacher_path=
+    '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
     cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
     train_cfg=None,
-    test_cfg=dict(average_clips='prob'))
+    test_cfg=dict(average_clips='prob'),
+    loss_kd=dict(type='CrossEntropyLoss', loss_weight=1.0))
 split = 1
 dataset_type = 'RawframeDataset'
 data_root = 'data/hmdb51/rawframes'
@@ -183,7 +216,7 @@ optimizer = dict(
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 lr_config = dict(policy='step', step=[15, 20])
 total_epochs = 30
-work_dir = './exp/timesformer_divST_16x4x1_15e_hmdb51s1_residual_finetune'
+work_dir = './exp/timesformer_divST_16x4x1_30e_hmdb51s1_kdrgb2r'
 gpu_ids = range(0, 1)
 omnisource = False
 module_hooks = []

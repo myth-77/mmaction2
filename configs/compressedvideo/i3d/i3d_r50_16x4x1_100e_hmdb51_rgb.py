@@ -70,17 +70,17 @@ data = dict(
         type=dataset_type,
         ann_file=ann_file_train,
         data_prefix=data_root,
-        pipeline=train_pipeline,start_index=1,modality='Residual'),
+        pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         ann_file=ann_file_val,
         data_prefix=data_root_val,
-        pipeline=val_pipeline,start_index=1,modality='Residual'),
+        pipeline=val_pipeline),
     test=dict(
         type=dataset_type,
         ann_file=ann_file_test,
         data_prefix=data_root_val,
-        pipeline=test_pipeline,start_index=1,modality='Residual'))
+        pipeline=test_pipeline))
 evaluation = dict(
     interval=5, metrics=['top_k_accuracy', 'mean_class_accuracy'])
 
