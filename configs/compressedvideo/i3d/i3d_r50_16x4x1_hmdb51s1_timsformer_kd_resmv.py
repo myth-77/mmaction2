@@ -2,7 +2,7 @@ model_teacher = dict(
     backbone=dict(
         type='TimeSformer',
         num_frames=16,
-        in_channels=3,
+        in_channels=5,
         img_size=224,
         patch_size=16,
         embed_dims=768,
@@ -23,6 +23,7 @@ model = dict(
         pretrained2d=True,
         pretrained='torchvision://resnet50',
         depth=50,
+        in_channels=5,
         conv1_kernel=(5, 7, 7),
         conv1_stride_t=2,
         pool1_stride_t=2,
@@ -142,8 +143,8 @@ test_pipeline = [
     dict(type='ThreeCrop', crop_size=256),
     dict(
         type='Normalize',
-        mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
-        std=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
+        mean=[127.5, 127.5, 127.5, 127.5, 0, 0],
+        std=[127.5, 127.5, 127.5, 127.5, 1, 1],
         to_bgr=False),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -157,7 +158,7 @@ data = dict(
         type='RawframeDataset',
         ann_file='data/hmdb51/hmdb51_train_split_1_rawframes.txt',
         data_prefix='data/hmdb51/rawframes',
-        modality='RGB_RES',
+        modality='RES_MV',
         pipeline=[
             dict(
                 type='SampleFrames',
@@ -187,7 +188,7 @@ data = dict(
         type='RawframeDataset',
         ann_file='data/hmdb51/hmdb51_val_split_1_rawframes.txt',
         data_prefix='data/hmdb51/rawframes',
-        modality='RGB_RES',
+        modality='RES_MV',
         pipeline=[
             dict(
                 type='SampleFrames',
@@ -211,7 +212,7 @@ data = dict(
         type='RawframeDataset',
         ann_file='data/hmdb51/hmdb51_val_split_1_rawframes.txt',
         data_prefix='data/hmdb51/rawframes',
-        modality='RGB_RES',
+        modality='RES_MV',
         pipeline=[
             dict(
                 type='SampleFrames',
