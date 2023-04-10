@@ -1472,7 +1472,7 @@ class RawFrameDecode:
         for i, frame_idx in enumerate(results['frame_inds']):
             # Avoid loading duplicated frames
             if frame_idx in cache:
-                if modality in ['RGB', 'Residual', 'RGB_RES']:
+                if modality in ['RGB', 'Residual', 'RGB_RES', 'RGB_RES_MV', 'RES_MV']:
                     imgs.append(cp.deepcopy(imgs[cache[frame_idx]]))
                 else:
                     imgs.append(cp.deepcopy(imgs[2 * cache[frame_idx]]))
@@ -1523,6 +1523,32 @@ class RawFrameDecode:
                 residual = cv2.absdiff(cur_frame, pre_frame)
                 img_res = np.concatenate([pre_frame, residual], axis= -1)
                 imgs.append(img_res)
+            elif modality == 'RGB_RES_MV':
+                filepath = osp.join(directory, filename_tmpl.format(frame_idx))
+                frame_idx_pre = (frame_idx - 1) if frame_idx > 1 else 1
+                filepath_pre = osp.join(directory, filename_tmpl.format(frame_idx_pre))
+                img_bytes = self.file_client.get(filepath)
+                # Get frame with channel order RGB directly.
+                cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
+                img_bytes_pre = self.file_client.get(filepath_pre)
+                # Get frame with channel order RGB directly.
+                pre_frame = mmcv.imfrombytes(img_bytes_pre, channel_order='rgb')
+                residual, mv = compute_residual_and_mv(pre_frame, cur_frame)
+                img_combine = np.concatenate([pre_frame, residual, mv], axis= -1)
+                imgs.append(img_combine)
+            elif modality == 'RES_MV':
+                filepath = osp.join(directory, filename_tmpl.format(frame_idx))
+                frame_idx_pre = (frame_idx - 1) if frame_idx > 1 else 1
+                filepath_pre = osp.join(directory, filename_tmpl.format(frame_idx_pre))
+                img_bytes = self.file_client.get(filepath)
+                # Get frame with channel order RGB directly.
+                cur_frame = mmcv.imfrombytes(img_bytes, channel_order='rgb')
+                img_bytes_pre = self.file_client.get(filepath_pre)
+                # Get frame with channel order RGB directly.
+                pre_frame = mmcv.imfrombytes(img_bytes_pre, channel_order='rgb')
+                residual, mv = compute_residual_and_mv(pre_frame, cur_frame)
+                img_combine = np.concatenate([residual, mv], axis= -1)
+                imgs.append(img_combine)
             else:
                 raise NotImplementedError
 
@@ -1550,6 +1576,30 @@ class RawFrameDecode:
                     f'decoding_backend={self.decoding_backend})')
         return repr_str
 
+
+def compute_residual_and_mv(prev_frame, curr_frame):
+    """
+    计算两个视频帧之间的残差和运动矢量
+
+    参数：
+        prev_frame：前一帧的视频帧
+        curr_frame：当前视频帧
+
+    返回值：
+        一个元组，包括两个三维数组：残差和运动矢量
+    """
+
+    # 计算前一帧和当前帧之间的运动矢量
+    prev_frame = np.array(prev_frame, dtype=np.float32)
+    curr_frame = np.array(curr_frame, dtype=np.float32)
+    prev_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+    curr_gray = cv2.cvtColor(curr_frame, cv2.COLOR_BGR2GRAY)    
+    flow = cv2.calcOpticalFlowFarneback(prev_gray, curr_gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+
+    residual = cv2.absdiff(curr_frame, prev_frame)
+
+    # 返回残差和运动矢量
+    return residual, flow
 
 @PIPELINES.register_module()
 class DecoderCompressedVid:

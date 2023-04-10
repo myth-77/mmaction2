@@ -6,17 +6,15 @@ model_teacher = dict(
         patch_size=16,
         embed_dims=768,
         in_channels=3,
-        dropout_ratio=0.,
+        dropout_ratio=0.0,
         transformer_layers=None,
-    attention_type='divided_space_time',
-        norm_cfg=dict(type='LN', eps=1e-6)),
+        attention_type='divided_space_time',
+        norm_cfg=dict(type='LN', eps=1e-06)),
     cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
-    # model training and testing settings
     train_cfg=None,
     test_cfg=dict(average_clips='prob'))
-
 model = dict(
-    type = 'Recognizer3Dkd',
+    type='Recognizer3Dkd',
     backbone=dict(
         type='ResNet3d',
         pretrained2d=True,
@@ -36,37 +34,25 @@ model = dict(
         spatial_type='avg',
         dropout_ratio=0.5,
         init_std=0.01),
-    teacher = model_teacher,
-    teacher_path = '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
+    teacher=dict(
+        backbone=dict(
+            type='TimeSformer',
+            num_frames=16,
+            img_size=224,
+            patch_size=16,
+            embed_dims=768,
+            in_channels=3,
+            dropout_ratio=0.0,
+            transformer_layers=None,
+            attention_type='divided_space_time',
+            norm_cfg=dict(type='LN', eps=1e-06)),
+        cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
+        train_cfg=None,
+        test_cfg=dict(average_clips='prob')),
+    teacher_path=
+    '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
     train_cfg=None,
-    test_cfg=dict(average_clips='prob'),
-    weight_loss=(0.5, 0.5))
-
-# model = dict(
-#     type='Recognizer3Dkd',
-#     backbone=dict(
-#         type='ResNet3d',
-#         pretrained2d=True,
-#         pretrained='torchvision://resnet50',
-#         depth=50,
-#         conv1_kernel=(5, 7, 7),
-#         conv1_stride_t=2,
-#         pool1_stride_t=2,
-#         conv_cfg=dict(type='Conv3d'),
-#         norm_eval=False,
-#         inflate=((1, 1, 1), (1, 0, 1, 0), (1, 0, 1, 0, 1, 0), (0, 1, 0)),
-#         zero_init_residual=False),
-#     teacher = model_teacher,
-#     teacher_path = '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
-#     cls_head=dict(
-#         type='I3DHead',
-#         num_classes=51,
-#         in_channels=2048,
-#         spatial_type='avg',
-#         dropout_ratio=0.5,
-#         init_std=0.01),
-#     train_cfg=None,
-#     test_cfg=dict(average_clips='prob'))
+    test_cfg=dict(average_clips='prob'))
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 lr_config = dict(policy='step', step=[40, 80])
@@ -229,7 +215,7 @@ data = dict(
         ]))
 evaluation = dict(
     interval=5, metrics=['top_k_accuracy', 'mean_class_accuracy'])
-work_dir = './exp/i3d_r50_16x4x1_100e_hmdb51_rgb'
+work_dir = './exp/i3d_r50_16x4x1_hmdb51s1_timsformer_kd_rgb_fix'
 gpu_ids = range(0, 1)
 omnisource = False
 module_hooks = []

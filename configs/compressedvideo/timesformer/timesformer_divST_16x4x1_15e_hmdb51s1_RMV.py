@@ -1,25 +1,8 @@
 _base_ = ['../../_base_/default_runtime.py']
 
-model_teacher = dict(
-    backbone=dict(
-        type='TimeSformer',
-        num_frames=16,
-        img_size=224,
-        patch_size=16,
-        embed_dims=768,
-        in_channels=3,
-        dropout_ratio=0.,
-        transformer_layers=None,
-    attention_type='divided_space_time',
-        norm_cfg=dict(type='LN', eps=1e-6)),
-    cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
-    # model training and testing settings
-    train_cfg=None,
-    test_cfg=dict(average_clips='prob'))
-
 # model settings
 model = dict(
-    type='Recognizer3Dkd_RBG2Res',
+    type='Recognizer3D',
     backbone=dict(
         type='TimeSformer',
         pretrained=  # noqa: E251
@@ -28,20 +11,15 @@ model = dict(
         img_size=224,
         patch_size=16,
         embed_dims=768,
-        in_channels=3,
+        in_channels=5,
         dropout_ratio=0.,
         transformer_layers=None,
-        attention_type='divided_space_time',
+    attention_type='divided_space_time',
         norm_cfg=dict(type='LN', eps=1e-6)),
-    teacher = model_teacher,
-    teacher_path = '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
     cls_head=dict(type='TimeSformerHead', num_classes=51, in_channels=768),
     # model training and testing settings
     train_cfg=None,
-    test_cfg=dict(average_clips='prob'),
-    loss_kd=dict(type='CrossEntropyLoss'),
-    weight_loss = (0.9, 0.1)
-    )
+    test_cfg=dict(average_clips='prob'))
 
 # dataset settings
 split = 1
@@ -53,7 +31,7 @@ ann_file_val = f'data/hmdb51/hmdb51_val_split_{split}_rawframes.txt'
 ann_file_test = f'data/hmdb51/hmdb51_val_split_{split}_rawframes.txt'
 
 img_norm_cfg = dict(
-    mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5], std=[127.5, 127.5,  127.5, 127.5, 127.5, 127.5], to_bgr=False)
+    mean=[127.5, 127.5, 127.5, 0, 0], std=[127.5, 127.5, 127.5, 1, 1], to_bgr=False)
 
 train_pipeline = [
     dict(type='SampleFrames', clip_len=16, frame_interval=4, num_clips=1),
@@ -104,17 +82,17 @@ data = dict(
         type=dataset_type,
         ann_file=ann_file_train,
         data_prefix=data_root,
-        pipeline=train_pipeline,start_index=1,modality='RGB_RES'),
+        pipeline=train_pipeline,start_index=1,modality='RES_MV'),
     val=dict(
         type=dataset_type,
         ann_file=ann_file_val,
         data_prefix=data_root_val,
-        pipeline=val_pipeline,start_index=1,modality='RGB_RES'),
+        pipeline=val_pipeline,start_index=1,modality='RES_MV'),
     test=dict(
         type=dataset_type,
         ann_file=ann_file_test,
         data_prefix=data_root_val,
-        pipeline=test_pipeline,start_index=1,modality='RGB_RES'))
+        pipeline=test_pipeline,start_index=1,modality='RES_MV'))
 
 evaluation = dict(
     interval=5, metrics=['top_k_accuracy', 'mean_class_accuracy'])
@@ -122,17 +100,17 @@ evaluation = dict(
 # optimizer
 optimizer = dict(
     type='SGD',
-    lr=0.000125,
+    lr=0.0001,
     momentum=0.9,
     paramwise_cfg=dict(
         custom_keys={
-            '.backbone.cls_token': dict(decay_mult=1.0),
-            '.backbone.pos_embed': dict(decay_mult=1.0),
-            '.backbone.time_embed': dict(decay_mult=1.0)
+            '.backbone.cls_token': dict(decay_mult=10.0),
+            '.backbone.pos_embed': dict(decay_mult=10.0),
+            '.backbone.time_embed': dict(decay_mult=10.0),
+            '.backbone.patch_embed': dict(decay_mult=10.0)
         }),
     weight_decay=1e-4,
     nesterov=True)  # this lr is used for 8 gpus
-# optimizer = dict(type='Adam', lr=0.0001, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=dict(max_norm=40, norm_type=2))
 
 # learning policy
@@ -141,4 +119,7 @@ total_epochs = 30
 
 # runtime settings
 checkpoint_config = dict(interval=5)
-work_dir = './work_dirs/timesformer_divST_16x4x1_30e_hmdb51s1_kdrgb2r'
+work_dir = './work_dirs/timesformer_divST_8x32x1_15e_hmdb51s1_rgb'
+
+
+load_from = 'timesformer_divST_8x32x1_15e_kinetics400_rgb-3f8e5d03.pth'

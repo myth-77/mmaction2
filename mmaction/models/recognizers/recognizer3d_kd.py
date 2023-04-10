@@ -11,10 +11,11 @@ from mmcv.runner.checkpoint import load_checkpoint
 class Recognizer3Dkd(BaseRecognizer):
     """3D recognizer model framework with knowledge distillation."""
 
-    def __init__(self, backbone, teacher, teacher_path='', cls_head=None, neck=None, train_cfg=None, test_cfg=None, loss_kd=dict(type='CrossEntropyLoss', loss_weight=1.0)):
+    def __init__(self, backbone, teacher, teacher_path='', cls_head=None, neck=None, train_cfg=None, test_cfg=None, loss_kd=dict(type='CrossEntropyLoss'), weight_loss = (1.0, 1.0)):
         super().__init__(backbone, cls_head, neck, train_cfg, test_cfg)
         self.teacher = Recognizer3D(**teacher)
         self.loss_kd = build_loss(loss_kd)
+        self.weight = weight_loss
         load_checkpoint(self.teacher, teacher_path)
 
 
@@ -36,9 +37,9 @@ class Recognizer3Dkd(BaseRecognizer):
         cls_score = self.cls_head(x)
         gt_labels = labels.squeeze()
         loss_cls = self.cls_head.loss(cls_score, gt_labels, **kwargs)
-        losses.update(loss_cls)
-        losses['kd'] = self.loss_kd(cls_score, score_teacher)
-
+        for key in loss_cls.keys():
+            losses[key] = loss_cls[key] * self.weight[0]
+        losses['loss_kd'] = self.loss_kd(cls_score, score_teacher) * self.weight[1]
         return losses
 
     def _do_test(self, imgs):
@@ -144,10 +145,11 @@ class Recognizer3Dkd(BaseRecognizer):
 class Recognizer3Dkd_RBG2Res(BaseRecognizer):
     """3D recognizer model framework with crose model (RGB -> Res) knowledge distillation."""
 
-    def __init__(self, backbone, teacher, teacher_path='', cls_head=None, neck=None, train_cfg=None, test_cfg=None, loss_kd=dict(type='CrossEntropyLoss', loss_weight=1.0)):
+    def __init__(self, backbone, teacher, teacher_path='', cls_head=None, neck=None, train_cfg=None, test_cfg=None, loss_kd=dict(type='CrossEntropyLoss'), weight_loss=(1.0, 1.0)):
         super().__init__(backbone, cls_head, neck, train_cfg, test_cfg)
         self.teacher = Recognizer3D(**teacher)
         self.loss_kd = build_loss(loss_kd)
+        self.weight_loss = weight_loss
         load_checkpoint(self.teacher, teacher_path)
 
 
@@ -159,7 +161,7 @@ class Recognizer3Dkd_RBG2Res(BaseRecognizer):
         with torch.no_grad():
             score_teacher = self.teacher._do_test(rgb)
         score_teacher = score_teacher.detach().clone()
-        imgs = imgs[:, :, :3]   # residual
+        imgs = imgs[:, :, 3:]   # residual
         imgs = imgs.reshape((-1, ) + imgs.shape[2:])
         losses = dict()
 
@@ -171,9 +173,9 @@ class Recognizer3Dkd_RBG2Res(BaseRecognizer):
         cls_score = self.cls_head(x)
         gt_labels = labels.squeeze()
         loss_cls = self.cls_head.loss(cls_score, gt_labels, **kwargs)
-        losses.update(loss_cls)
-        losses['kd'] = self.loss_kd(cls_score, score_teacher)
-
+        for key in loss_cls.keys():
+            losses[key] = loss_cls[key] * self.weight_loss[0]
+        losses['loss_kd'] = self.loss_kd(cls_score, score_teacher) * self.weight_loss[1]
         return losses
 
     def _do_test(self, imgs):
@@ -243,6 +245,7 @@ class Recognizer3Dkd_RBG2Res(BaseRecognizer):
     def forward_test(self, imgs):
         """Defines the computation performed at every call when evaluation and
         testing."""
+        imgs = imgs[:, :, 3:]   # residual
         return self._do_test(imgs).cpu().numpy()
 
     def forward_dummy(self, imgs, softmax=False):
@@ -257,6 +260,7 @@ class Recognizer3Dkd_RBG2Res(BaseRecognizer):
             Tensor: Class score.
         """
         assert self.with_cls_head
+        imgs = imgs[:, :, 3:]   # residual
         imgs = imgs.reshape((-1, ) + imgs.shape[2:])
         x = self.extract_feat(imgs)
 

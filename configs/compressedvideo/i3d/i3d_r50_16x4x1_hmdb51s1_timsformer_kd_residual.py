@@ -39,7 +39,8 @@ model = dict(
     teacher = model_teacher,
     teacher_path = '/home/myth/workplace/mmaction2/exp/timesformer_divST_16x4x1_15e_hmdb51s1_rgb_SGD1e4_finetunek400/best_top1_acc_epoch_15.pth',
     train_cfg=None,
-    test_cfg=dict(average_clips='prob'))
+    test_cfg=dict(average_clips='prob'),
+    weight_loss = (0.9, 0.1))
 
 # model = dict(
 #     type='Recognizer3Dkd',
@@ -140,8 +141,8 @@ test_pipeline = [
     dict(type='ThreeCrop', crop_size=256),
     dict(
         type='Normalize',
-        mean=[127.5, 127.5, 127.5],
-        std=[127.5, 127.5, 127.5],
+        mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
+        std=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
         to_bgr=False),
     dict(type='FormatShape', input_format='NCTHW'),
     dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -174,8 +175,8 @@ data = dict(
             dict(type='Flip', flip_ratio=0.5),
             dict(
                 type='Normalize',
-                mean=[127.5, 127.5, 127.5],
-                std=[127.5, 127.5, 127.5],
+                mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
+                std=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
                 to_bgr=False),
             dict(type='FormatShape', input_format='NCTHW'),
             dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -198,8 +199,8 @@ data = dict(
             dict(type='CenterCrop', crop_size=224),
             dict(
                 type='Normalize',
-                mean=[127.5, 127.5, 127.5],
-                std=[127.5, 127.5, 127.5],
+                mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
+                std=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
                 to_bgr=False),
             dict(type='FormatShape', input_format='NCTHW'),
             dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
@@ -222,8 +223,8 @@ data = dict(
             dict(type='ThreeCrop', crop_size=256),
             dict(
                 type='Normalize',
-                mean=[127.5, 127.5, 127.5],
-                std=[127.5, 127.5, 127.5],
+                mean=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
+                std=[127.5, 127.5, 127.5, 127.5, 127.5, 127.5],
                 to_bgr=False),
             dict(type='FormatShape', input_format='NCTHW'),
             dict(type='Collect', keys=['imgs', 'label'], meta_keys=[]),
